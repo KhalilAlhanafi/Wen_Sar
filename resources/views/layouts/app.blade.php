@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="{{ app()->getLocale() }}" dir="{{ app()->getLocale() == 'ar' ? 'rtl' : 'ltr' }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -14,41 +14,54 @@
     </style>
 </head>
 <body class="bg-gray-50 text-gray-900 antialiased font-sans">
+    <!-- Splash Screen -->
+    <x-splash-screen />
+    
     <header class="bg-brand-white shadow-sm sticky top-0 z-50 border-b border-gray-100" x-data="{ mobileMenuOpen: false }">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex h-16 md:h-20 items-center justify-between">
-                <!-- Logo -->
-                <div class="flex items-center">
-                    <a href="{{ url('/') }}" class="flex items-center">
-                        <img src="{{ asset('images/IMG_4032-Picsart-BackgroundRemover.jpeg.png') }}" alt="وين صار" class="h-12 md:h-16 w-auto">
+                <!-- Logo (Right in RTL) -->
+                <div class="flex items-center flex-1">
+                    <a href="{{ url('/') }}" class="flex items-center gap-1">
+                       <img src="{{ asset('images/logo green png.png') }}" alt="وين صار" class="h-16 md:h-24 w-auto"> 
+                       <!-- <img src="{{ asset('images/full logo green png.png') }}" alt="وين صار" class="h-20 md:h-32 w-auto"> -->
                     </a>
                 </div>
-                
-                <!-- Desktop Navigation -->
+
+                <!-- Desktop Navigation (Center) -->
                 <nav class="hidden md:flex justify-center items-center gap-6 lg:gap-8">
-                    <a href="{{ url('/') }}" class="{{ request()->is('/') ? 'text-brand-green font-bold text-base lg:text-lg' : 'text-gray-500 text-sm font-medium hover:text-brand-green' }}">الرئيسية</a>
+                    <!-- Language Switcher -->
+                    <a href="{{ route('lang.switch', app()->getLocale() == 'ar' ? 'en' : 'ar') }}" 
+                       class="flex items-center gap-1 text-sm font-medium px-3 py-1.5 rounded-lg border border-gray-200 hover:border-brand-green hover:text-brand-green transition-all">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129"/>
+                        </svg>
+                        {{ app()->getLocale() == 'ar' ? 'English' : 'العربية' }}
+                    </a>
+                    <a href="{{ url('/') }}" class="{{ request()->is('/') ? 'text-brand-green font-bold text-base lg:text-lg' : 'text-gray-500 text-sm font-medium hover:text-brand-green' }}">{{ __('Home') }}</a>
                     @auth
+                        <a href="{{ route('favorites.index') }}" class="{{ request()->routeIs('favorites.index') ? 'text-brand-green font-bold text-base lg:text-lg' : 'text-gray-500 text-sm font-medium hover:text-brand-green' }}">{{ __('Favorites') }}</a>
                         @if(Auth::user()->hasRole('owner'))
-                            <a href="{{ route('dashboard') }}" class="{{ request()->routeIs('dashboard') ? 'text-brand-green font-bold text-base lg:text-lg' : 'text-gray-500 text-sm font-medium hover:text-brand-green' }}">لوحة التحكم</a>
+                            <a href="{{ route('dashboard') }}" class="{{ request()->routeIs('dashboard') ? 'text-brand-green font-bold text-base lg:text-lg' : 'text-gray-500 text-sm font-medium hover:text-brand-green' }}">{{ __('Dashboard') }}</a>
                         @endif
                     @endauth
-                    <a href="{{ route('about') }}" class="{{ request()->routeIs('about') ? 'text-brand-green font-bold text-base lg:text-lg' : 'text-gray-500 text-sm font-medium hover:text-brand-green' }}">عن المشروع</a>
-                    <a href="{{ route('contact') }}" class="{{ request()->routeIs('contact') ? 'text-brand-green font-bold text-base lg:text-lg' : 'text-gray-500 text-sm font-medium hover:text-brand-green' }}">تواصل معنا</a>
+                    <a href="{{ route('about') }}" class="{{ request()->routeIs('about') ? 'text-brand-green font-bold text-base lg:text-lg' : 'text-gray-500 text-sm font-medium hover:text-brand-green' }}">{{ __('About') }}</a>
+                    <a href="{{ route('contact') }}" class="{{ request()->routeIs('contact') ? 'text-brand-green font-bold text-base lg:text-lg' : 'text-gray-500 text-sm font-medium hover:text-brand-green' }}">{{ __('Contact') }}</a>
                 </nav>
 
-                <!-- Desktop User Actions -->
-                <div class="hidden md:flex items-center justify-end gap-3 lg:gap-4">
+                <!-- Desktop User Actions (Left in RTL) -->
+                <div class="hidden md:flex items-center justify-end gap-3 lg:gap-4 flex-1">
                     @auth
                         <div class="flex items-center gap-2 lg:gap-3">
                             <span class="bg-brand-green text-white font-bold px-3 py-2 rounded-lg shadow-sm text-sm">{{ Auth::user()->name }}</span>
                             <form method="POST" action="{{ route('logout') }}" class="inline">
                                 @csrf
-                                <button type="submit" class="text-sm text-red-600 hover:text-white font-bold bg-red-50 hover:bg-red-500 px-3 py-2 rounded-lg border border-red-200 hover:border-red-500 transition-all shadow-sm">خروج</button>
+                                <button type="submit" class="text-sm text-red-600 hover:text-white font-bold bg-red-50 hover:bg-red-500 px-3 py-2 rounded-lg border border-red-200 hover:border-red-500 transition-all shadow-sm">{{ __('Logout') }}</button>
                             </form>
                         </div>
                     @else
-                        <a href="{{ route('select-role') }}" class="text-sm font-medium text-brand-green hover:opacity-80">دخول</a>
-                        <a href="{{ route('select-role') }}?action=register" class="bg-brand-green text-white px-4 py-2 rounded-xl text-sm font-bold hover:opacity-90 transition-all shadow-sm">حساب جديد</a>
+                        <a href="{{ route('select-role') }}" class="text-sm font-medium text-brand-green hover:opacity-80">{{ __('Login') }}</a>
+                        <a href="{{ route('select-role') }}?action=register" class="bg-brand-green text-white px-4 py-2 rounded-xl text-sm font-bold hover:opacity-90 transition-all shadow-sm">{{ __('Register') }}</a>
                     @endauth
                 </div>
 
@@ -74,14 +87,23 @@
              x-transition:leave-end="opacity-0 -translate-y-2"
              class="md:hidden bg-white border-t border-gray-100">
             <div class="px-4 py-3 space-y-2">
-                <a href="{{ url('/') }}" class="block py-2 px-3 rounded-lg {{ request()->is('/') ? 'bg-brand-green/10 text-brand-green font-bold' : 'text-gray-700 hover:bg-gray-50' }}">الرئيسية</a>
+                <!-- Mobile Language Switcher -->
+                <a href="{{ route('lang.switch', app()->getLocale() == 'ar' ? 'en' : 'ar') }}" 
+                   class="flex items-center gap-2 py-2 px-3 rounded-lg border border-gray-200 mb-3">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129"/>
+                    </svg>
+                    {{ app()->getLocale() == 'ar' ? 'English' : 'العربية' }}
+                </a>
+                <a href="{{ url('/') }}" class="block py-2 px-3 rounded-lg {{ request()->is('/') ? 'bg-brand-green/10 text-brand-green font-bold' : 'text-gray-700 hover:bg-gray-50' }}">{{ __('Home') }}</a>
                 @auth
+                    <a href="{{ route('favorites.index') }}" class="block py-2 px-3 rounded-lg {{ request()->routeIs('favorites.index') ? 'bg-brand-green/10 text-brand-green font-bold' : 'text-gray-700 hover:bg-gray-50' }}">{{ __('Favorites') }}</a>
                     @if(Auth::user()->hasRole('owner'))
-                        <a href="{{ route('dashboard') }}" class="block py-2 px-3 rounded-lg {{ request()->routeIs('dashboard') ? 'bg-brand-green/10 text-brand-green font-bold' : 'text-gray-700 hover:bg-gray-50' }}">لوحة التحكم</a>
+                        <a href="{{ route('dashboard') }}" class="block py-2 px-3 rounded-lg {{ request()->routeIs('dashboard') ? 'bg-brand-green/10 text-brand-green font-bold' : 'text-gray-700 hover:bg-gray-50' }}">{{ __('Dashboard') }}</a>
                     @endif
                 @endauth
-                <a href="{{ route('about') }}" class="block py-2 px-3 rounded-lg {{ request()->routeIs('about') ? 'bg-brand-green/10 text-brand-green font-bold' : 'text-gray-700 hover:bg-gray-50' }}">عن المشروع</a>
-                <a href="{{ route('contact') }}" class="block py-2 px-3 rounded-lg {{ request()->routeIs('contact') ? 'bg-brand-green/10 text-brand-green font-bold' : 'text-gray-700 hover:bg-gray-50' }}">تواصل معنا</a>
+                <a href="{{ route('about') }}" class="block py-2 px-3 rounded-lg {{ request()->routeIs('about') ? 'bg-brand-green/10 text-brand-green font-bold' : 'text-gray-700 hover:bg-gray-50' }}">{{ __('About') }}</a>
+                <a href="{{ route('contact') }}" class="block py-2 px-3 rounded-lg {{ request()->routeIs('contact') ? 'bg-brand-green/10 text-brand-green font-bold' : 'text-gray-700 hover:bg-gray-50' }}">{{ __('Contact') }}</a>
                 
                 <div class="border-t border-gray-100 pt-3 mt-3">
                     @auth
@@ -89,13 +111,13 @@
                             <span class="font-bold text-gray-800">{{ Auth::user()->name }}</span>
                             <form method="POST" action="{{ route('logout') }}" class="inline">
                                 @csrf
-                                <button type="submit" class="text-sm text-red-600 font-bold">تسجيل الخروج</button>
+                                <button type="submit" class="text-sm text-red-600 font-bold">{{ __('Logout') }}</button>
                             </form>
                         </div>
                     @else
                         <div class="flex gap-2">
-                            <a href="{{ route('select-role') }}" class="flex-1 py-2 px-3 rounded-lg border border-gray-300 text-center text-gray-700 font-medium">تسجيل الدخول</a>
-                            <a href="{{ route('select-role') }}?action=register" class="flex-1 py-2 px-3 rounded-lg bg-brand-green text-center text-white font-bold">إنشاء حساب</a>
+                            <a href="{{ route('select-role') }}" class="flex-1 py-2 px-3 rounded-lg border border-gray-300 text-center text-gray-700 font-medium">{{ __('Login') }}</a>
+                            <a href="{{ route('select-role') }}?action=register" class="flex-1 py-2 px-3 rounded-lg bg-brand-green text-center text-white font-bold">{{ __('Register') }}</a>
                         </div>
                     @endauth
                 </div>
@@ -112,19 +134,19 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 md:gap-8 text-center md:text-right">
                 <div class="sm:col-span-2 md:col-span-1">
-                    <h3 class="text-lg md:text-xl font-bold mb-3 md:mb-4">وين صار</h3>
-                    <p class="text-gray-300 text-sm md:text-base">دليلك الشامل في دمشق وسوريا. نساعدك في الوصول إلى أفضل الخدمات والمحال التجارية.</p>
+                    <h3 class="text-lg md:text-xl font-bold mb-3 md:mb-4">{{ __('Wen Sar') }}</h3>
+                    <p class="text-gray-300 text-sm md:text-base">{{ __('Your comprehensive guide in Damascus and Syria. We help you reach the best services and businesses.') }}</p>
                 </div>
                 <div>
-                    <h3 class="text-lg md:text-xl font-bold mb-3 md:mb-4">روابط سريعة</h3>
+                    <h3 class="text-lg md:text-xl font-bold mb-3 md:mb-4">{{ __('Quick Links') }}</h3>
                     <ul class="space-y-2 text-sm md:text-base">
-                        <li><a href="#" class="text-gray-300 hover:text-white transition">الأسئلة الشائعة</a></li>
-                        <li><a href="#" class="text-gray-300 hover:text-white transition">سياسة الخصوصية</a></li>
-                        <li><a href="#" class="text-gray-300 hover:text-white transition">شروط الاستخدام</a></li>
+                        <li><a href="#" class="text-gray-300 hover:text-white transition">{{ __('FAQ') }}</a></li>
+                        <li><a href="#" class="text-gray-300 hover:text-white transition">{{ __('Privacy Policy') }}</a></li>
+                        <li><a href="#" class="text-gray-300 hover:text-white transition">{{ __('Terms of Use') }}</a></li>
                     </ul>
                 </div>
                 <div>
-                    <h3 class="text-lg md:text-xl font-bold mb-3 md:mb-4">تابعنا</h3>
+                    <h3 class="text-lg md:text-xl font-bold mb-3 md:mb-4">{{ __('Follow Us') }}</h3>
                     <div class="flex justify-center md:justify-start gap-4 text-sm md:text-base">
                         <a href="#" class="text-gray-300 hover:text-white transition">Facebook</a>
                         <a href="#" class="text-gray-300 hover:text-white transition">Instagram</a>
@@ -132,7 +154,7 @@
                 </div>
             </div>
             <div class="border-t border-white/10 mt-6 md:mt-8 pt-6 md:pt-8 text-center text-gray-400 text-sm">
-                &copy; {{ date('Y') }} وين صار. جميع الحقوق محفوظة.
+                &copy; {{ date('Y') }} {{ __('Wen Sar') }}. {{ __('All rights reserved.') }}
             </div>
         </div>
     </footer>

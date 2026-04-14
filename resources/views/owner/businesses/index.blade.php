@@ -30,23 +30,59 @@
             @forelse($businesses as $business)
             <div class="bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all border border-gray-100 group">
                 <div class="h-48 bg-gray-100 relative">
-                    <img src="https://ui-avatars.com/api/?name={{ urlencode($business->name) }}&background=06402b&color=faf9f6&size=512" class="w-full h-full object-cover">
+                    @if($business->logo)
+                        <img src="{{ asset('storage/' . $business->logo) }}" alt="{{ $business->name }}" class="w-full h-full object-cover">
+                    @elseif($business->images && count($business->images) > 0)
+                        <img src="{{ asset('storage/' . $business->images[0]) }}" alt="{{ $business->name }}" class="w-full h-full object-cover">
+                    @else
+                        <img src="https://images.unsplash.com/photo-1555396273-367ea4eb4db5?q=80&w=1974&auto=format&fit=crop" alt="{{ $business->name }}" class="w-full h-full object-cover">
+                    @endif
                     <div class="absolute top-4 right-4 bg-brand-green text-white text-[10px] font-bold px-3 py-1 rounded-full shadow-lg">
                         {{ $business->category->name }}
+                    </div>
+                    <!-- Status Badge -->
+                    <div class="absolute top-4 left-4 shadow-lg">
+                        @if($business->status === 'pending')
+                            <span class="bg-yellow-500 text-white text-[10px] font-bold px-3 py-1 rounded-full">{{ __('Pending Approval') }}</span>
+                        @elseif($business->status === 'approved' && ($business->contract_ends_at === null || $business->contract_ends_at > now()))
+                            <span class="bg-green-500 text-white text-[10px] font-bold px-3 py-1 rounded-full">{{ __('Published') }}</span>
+                        @elseif($business->status === 'rejected')
+                            <span class="bg-red-500 text-white text-[10px] font-bold px-3 py-1 rounded-full">{{ __('Rejected') }}</span>
+                        @elseif($business->contract_ends_at && $business->contract_ends_at <= now())
+                            <span class="bg-gray-500 text-white text-[10px] font-bold px-3 py-1 rounded-full">{{ __('Expired') }}</span>
+                        @endif
                     </div>
                 </div>
                 <div class="p-6">
                     <h3 class="text-xl font-bold text-gray-800 mb-4">{{ $business->name }}</h3>
-                    <div class="flex items-center text-gray-400 text-sm gap-4 mb-6">
+                    <div class="flex items-center text-gray-400 text-sm gap-4 mb-4">
                         <div class="flex items-center">
                             <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path></svg>
-                            {{ $business->subArea?->name ?? 'غير محدد' }}
+                            {{ $business->subArea?->name ?? __('Not specified') }}
                         </div>
                         <div class="flex items-center">
                             <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
                             {{ $business->views_count }}
                         </div>
                     </div>
+                    
+                    <!-- Contract Info for Approved Businesses -->
+                    @if($business->status === 'approved' && $business->contract_ends_at)
+                    <div class="mb-4 text-xs">
+                        @php
+                            $daysLeft = $business->daysUntilExpiry();
+                        @endphp
+                        <div class="flex items-center gap-2">
+                            <span class="text-gray-500">{{ __('Contract ends') }}:</span>
+                            <span class="font-bold {{ $daysLeft <= 3 ? 'text-red-500' : 'text-green-600' }}">
+                                {{ $business->contract_ends_at->format('Y-m-d') }}
+                                @if($daysLeft !== null)
+                                    ({{ $daysLeft > 0 ? $daysLeft . ' ' . __('days left') : __('Expired') }})
+                                @endif
+                            </span>
+                        </div>
+                    </div>
+                    @endif
                     
                     <div class="flex gap-3 pt-4 border-t border-gray-50">
                         <a href="{{ route('owner.businesses.edit', $business->id) }}" class="flex-1 bg-brand-green/5 text-brand-green font-bold text-center py-3 rounded-xl hover:bg-brand-green hover:text-white transition-all">

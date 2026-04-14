@@ -1,0 +1,96 @@
+@extends('layouts.manager')
+
+@section('title', __('Business Owners'))
+@section('page-title', __('Business Owners Management'))
+
+@section('content')
+<!-- Search -->
+<div class="bg-white rounded-xl shadow-sm p-4 mb-6">
+    <form method="GET" action="{{ route('manager.owners.index') }}" class="flex gap-4">
+        <div class="flex-1">
+            <input type="text" name="search" value="{{ request('search') }}" placeholder="{{ __('Search by name or email...') }}"
+                   class="w-full border-2 border-gray-200 rounded-xl px-4 py-2.5 focus:border-brand-green focus:outline-none transition-colors">
+        </div>
+        <button type="submit" class="bg-brand-green text-white font-bold py-2.5 px-6 rounded-xl hover:opacity-90 transition-all">
+            {{ __('Search') }}
+        </button>
+        <a href="{{ route('manager.owners.index') }}" class="bg-gray-100 text-gray-700 font-bold py-2.5 px-6 rounded-xl hover:bg-gray-200 transition-all">
+            {{ __('Reset') }}
+        </a>
+    </form>
+</div>
+
+<!-- Owners List -->
+<div class="bg-white rounded-xl shadow-sm">
+    @if($owners->count() > 0)
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-4 text-right text-sm font-bold text-gray-600">{{ __('Owner') }}</th>
+                        <th class="px-6 py-4 text-right text-sm font-bold text-gray-600">{{ __('Email') }}</th>
+                        <th class="px-6 py-4 text-center text-sm font-bold text-gray-600">{{ __('Registered') }}</th>
+                        <th class="px-6 py-4 text-center text-sm font-bold text-gray-600">{{ __('Businesses') }}</th>
+                        <th class="px-6 py-4 text-center text-sm font-bold text-gray-600">{{ __('Actions') }}</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100">
+                    @foreach($owners as $owner)
+                    <tr class="hover:bg-gray-50 transition-colors">
+                        <td class="px-6 py-4">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 bg-brand-green/10 rounded-full flex items-center justify-center">
+                                    <span class="text-brand-green font-bold">{{ substr($owner->name, 0, 1) }}</span>
+                                </div>
+                                <span class="font-bold text-gray-800">{{ $owner->name }}</span>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4">
+                            <span class="text-gray-600">{{ $owner->email }}</span>
+                        </td>
+                        <td class="px-6 py-4 text-center">
+                            <span class="text-sm text-gray-500">{{ $owner->created_at->format('Y-m-d') }}</span>
+                        </td>
+                        <td class="px-6 py-4 text-center">
+                            <span class="bg-brand-green/10 text-brand-green text-sm font-bold px-3 py-1 rounded-lg">{{ $owner->businesses_count }}</span>
+                        </td>
+                        <td class="px-6 py-4">
+                            <div class="flex items-center justify-center gap-2">
+                                <a href="{{ route('manager.owners.show', $owner) }}" class="bg-brand-green/10 text-brand-green p-2 rounded-lg hover:bg-brand-green hover:text-white transition-all" title="{{ __('View Details') }}">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                                    </svg>
+                                </a>
+                                <form method="POST" action="{{ route('manager.owners.destroy', $owner) }}" onsubmit="return confirm('{{ __('Are you sure you want to delete :name account? All their :count businesses will be deleted!', ['name' => $owner->name, 'count' => $owner->businesses_count]) }}')" class="inline">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="bg-red-100 text-red-600 p-2 rounded-lg hover:bg-red-600 hover:text-white transition-all" title="{{ __('Delete') }}">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                        </svg>
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+        <div class="p-4 border-t border-gray-100">
+            {{ $owners->links() }}
+        </div>
+    @else
+        <div class="text-center py-16">
+            <div class="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                <svg class="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
+                </svg>
+            </div>
+            <h3 class="text-xl font-bold text-gray-600 mb-2">{{ __('No Owners Found') }}</h3>
+            <p class="text-gray-500">{{ __('Try adjusting your search') }}</p>
+        </div>
+    @endif
+</div>
+@endsection

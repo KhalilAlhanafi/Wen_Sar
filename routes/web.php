@@ -11,6 +11,12 @@ use App\Http\Controllers\FavoriteController;
 use App\Http\Controllers\ReviewController;
 
 use App\Http\Controllers\Owner\BusinessController as OwnerBusinessController;
+use App\Http\Controllers\LanguageController;
+
+Route::get('lang/{locale}', [LanguageController::class, 'switch'])->name('lang.switch');
+
+// Manager routes
+require __DIR__.'/manager.php';
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/categories', [HomeController::class, 'categories'])->name('categories.index');
@@ -25,7 +31,10 @@ Route::get('/business/{business}', [BusinessController::class, 'show'])->name('b
 Route::get('/category/{category}', [BusinessController::class, 'category'])->name('business.category');
 Route::get('/featured', [BusinessController::class, 'featured'])->name('business.featured');
 
+Route::get('/favorites', [FavoriteController::class, 'index'])->middleware('auth')->name('favorites.index');
 Route::post('/favorites/{business}/toggle', [FavoriteController::class, 'toggle'])->middleware('auth')->name('favorites.toggle');
+Route::post('/favorites/{business}', [FavoriteController::class, 'store'])->middleware('auth')->name('favorites.store');
+Route::delete('/favorites/{business}', [FavoriteController::class, 'destroy'])->middleware('auth')->name('favorites.destroy');
 Route::post('/business/{business}/reviews', [ReviewController::class, 'store'])->middleware('auth')->name('reviews.store');
 
 Route::middleware(['auth'])->prefix('owner')->name('owner.')->group(function () {
@@ -37,7 +46,7 @@ Route::middleware(['auth'])->prefix('owner')->name('owner.')->group(function () 
 });
 
 Route::get('/dashboard', [DashboardController::class, 'index'])
-    ->middleware(['auth', 'verified'])
+    ->middleware(['auth', 'verified', 'role:owner'])
     ->name('dashboard');
 
 Route::middleware('auth')->group(function () {

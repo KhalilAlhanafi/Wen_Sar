@@ -30,17 +30,29 @@ class AuthenticatedSessionController extends Controller
     {
         $request->authenticate();
 
-        $request->session()->regenerate();
+        $user = Auth::user();
 
-        // Assign role if stored in session
+        // Check if user is logging in through a specific role portal
         if ($request->session()->has('intended_role')) {
-            $role = $request->session()->get('intended_role');
-            if (!Auth::user()->hasRole($role)) {
-                Auth::user()->assignRole($role);
-            }
+            $intendedRole = $request->session()->get('intended_role');
             $request->session()->forget('intended_role');
+
+            // If user's role doesn't match the portal they tried to use, reject
+            if (!$user->hasRole($intendedRole)) {
+                Auth::guard('web')->logout();
+                $request->session()->invalidate();
+                $request->session()->regenerateToken();
+
+                $roleName = $intendedRole === 'owner' ? 'صاحب نشاط تجاري' : 'مستخدم عادي';
+                return redirect()->route('login')->withErrors([
+                    'email' => 'هذا الحساب مسجل كـ ' . ($user->hasRole('owner') ? 'صاحب نشاط تجاري' : 'مستخدم عادي') . '. يرجى استخدام البوابة الصحيحة للدخول.',
+                ]);
+            }
         }
 
+        $request->session()->regenerate();
+
+        // All users go to home page after login
         return redirect('/');
     }
 

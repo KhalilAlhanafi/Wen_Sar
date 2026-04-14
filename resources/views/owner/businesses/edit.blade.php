@@ -31,6 +31,12 @@
                         <input type="text" name="name" value="{{ $business->name }}" required class="w-full border-gray-300 rounded-lg py-3 px-4 focus:ring-2 focus:ring-brand-green focus:border-brand-green bg-white text-gray-800">
                     </div>
 
+                    <!-- English Name -->
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-2">اسم المنشأة بالإنجليزي</label>
+                        <input type="text" name="english_name" dir="ltr" value="{{ $business->english_name }}" class="w-full border-gray-300 rounded-lg py-3 px-4 focus:ring-2 focus:ring-brand-green focus:border-brand-green bg-white text-gray-800" placeholder="Example: Olive Restaurant, Luxury Salon...">
+                    </div>
+
                     <!-- Description -->
                     <div>
                         <label class="block text-sm font-bold text-gray-700 mb-2">الوصف</label>
@@ -183,17 +189,29 @@
                             $phoneSuffix = substr($business->phone, 2);
                         }
                     @endphp
-                    <div>
+                    <div class="mb-6">
                         <label class="block text-sm font-bold text-gray-700 mb-2">رقم الهاتف <span class="text-red-500">*</span></label>
                         <div class="relative flex items-center">
                             <span class="absolute left-4 top-1/2 -translate-y-1/2 text-brand-green font-extrabold text-lg select-none">09</span>
                             <input type="tel" name="phone_suffix" id="phoneInput" required maxlength="8" value="{{ $phoneSuffix }}"
-                                   class="w-full border-gray-300 rounded-lg py-3 pl-12 pr-4 focus:ring-2 focus:ring-brand-green focus:border-brand-green bg-white text-gray-800 font-bold tracking-wider" 
+                                   class="w-full border-gray-300 rounded-lg py-3 pl-12 pr-4 focus:ring-2 focus:ring-brand-green focus:border-brand-green bg-white text-gray-800 font-bold tracking-wider"
                                    placeholder="١٢٣٤٥٦٧٨"
                                    oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 8); document.getElementById('fullPhone').value = '09' + this.value;">
                             <input type="hidden" name="phone" id="fullPhone" value="{{ $business->phone ?? '09' }}">
                         </div>
                         <p class="text-xs text-gray-400 mt-2">مثال: <span class="font-bold text-gray-600">09</span><span class="text-gray-400">12345678</span></p>
+                    </div>
+
+                    <!-- Opening Hours -->
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-bold text-gray-700 mb-2">وقت الفتح</label>
+                            <input type="time" name="opening_time" value="{{ $business->opening_time }}" class="w-full border-gray-300 rounded-lg py-3 px-4 focus:ring-2 focus:ring-brand-green focus:border-brand-green bg-white text-gray-800">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-bold text-gray-700 mb-2">وقت الإغلاق</label>
+                            <input type="time" name="closing_time" value="{{ $business->closing_time }}" class="w-full border-gray-300 rounded-lg py-3 px-4 focus:ring-2 focus:ring-brand-green focus:border-brand-green bg-white text-gray-800">
+                        </div>
                     </div>
                 </div>
             </div>

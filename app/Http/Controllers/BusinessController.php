@@ -13,7 +13,7 @@ class BusinessController extends Controller
 {
     public function search(Request $request)
     {
-        $query = Business::query()->with(['category', 'subArea', 'reviews']);
+        $query = Business::approved()->with(['category', 'subArea', 'reviews']);
 
         if ($request->has('district_id')) {
             $query->where('district_id', $request->district_id);
@@ -50,7 +50,7 @@ class BusinessController extends Controller
 
     public function apiSearch(Request $request)
     {
-        $query = Business::query()->with(['category', 'subArea', 'reviews']);
+        $query = Business::approved()->with(['category', 'subArea', 'reviews']);
 
         if ($request->has('district_id') && $request->district_id) {
             $query->where('district_id', $request->district_id);
@@ -103,7 +103,7 @@ class BusinessController extends Controller
 
     public function category(Request $request, Category $category)
     {
-        $query = Business::where('category_id', $category->id)
+        $query = Business::approved()->where('category_id', $category->id)
             ->with(['subArea', 'reviews']);
 
         // Apply search query if provided
@@ -139,7 +139,7 @@ class BusinessController extends Controller
 
     public function featured()
     {
-        $businesses = Business::where('is_featured', true)
+        $businesses = Business::approved()->where('is_featured', true)
             ->with(['category', 'subArea', 'reviews'])
             ->orderBy('featured_rank')
             ->take(25)

@@ -18,6 +18,7 @@
     searchTimeout: null,
     subAreas: [],
     hasSearched: false,
+    mobileFiltersOpen: false,
     
     async init() {
         // Wait for DOM to be fully ready
@@ -112,19 +113,19 @@
                         $selectedDistrict = request('district_id') ? $districts->firstWhere('id', request('district_id')) : null;
                     @endphp
                     @if(isset($category))
-                        تصنيف: <span class="text-orange-400">{{ $category->name }}</span>
+                        {{ __('Category') }}: <span class="text-orange-400">{{ $category->name }}</span>
                         @if($selectedDistrict)
-                            في <span class="text-orange-400">{{ $selectedDistrict->name }}</span>
+                            {{ __('in') }} <span class="text-orange-400">{{ $selectedDistrict->name }}</span>
                         @endif
                     @elseif($selectedCategory && $selectedDistrict)
-                        نتائج البحث عن: <span class="text-orange-400">{{ $selectedCategory->name }}</span> 
-                        في <span class="text-orange-400">{{ $selectedDistrict->name }}</span>
+                        {{ __('Search Results for') }}: <span class="text-orange-400">{{ $selectedCategory->name }}</span> 
+                        {{ __('in') }} <span class="text-orange-400">{{ $selectedDistrict->name }}</span>
                     @elseif($selectedCategory)
-                        نتائج البحث عن: <span class="text-orange-400">{{ $selectedCategory->name }}</span>
+                        {{ __('Search Results for') }}: <span class="text-orange-400">{{ $selectedCategory->name }}</span>
                     @elseif($selectedDistrict)
-                        نتائج البحث عن: <span class="text-orange-400">{{ $selectedDistrict->name }}</span>
+                        {{ __('Search Results for') }}: <span class="text-orange-400">{{ $selectedDistrict->name }}</span>
                     @else
-                        نتائج البحث
+                        {{ __('Search Results') }}
                     @endif
                 </h1>
             </div>
@@ -134,26 +135,43 @@
                 <div class="flex flex-col md:flex-row gap-3 md:gap-4">
                     <!-- Search Input -->
                     <div class="flex-1">
-                        <label class="block text-xs font-bold text-gray-500 mb-1 md:mb-2 mr-1">البحث</label>
+                        <label class="block text-xs font-bold text-gray-500 mb-1 md:mb-2 mr-1">{{ __('Search') }}</label>
                         <div class="relative">
                             <input type="text" 
                                    x-model="searchQuery" 
                                    @input="debouncedSearch()"
-                                   placeholder="ماذا تبحث؟" 
+                                   placeholder="{{ __('What are you looking for?') }}" 
                                    class="w-full border-2 border-gray-200 rounded-lg py-2.5 md:py-3 px-3 md:px-4 focus:ring-2 focus:ring-brand-green focus:border-brand-green text-gray-800 placeholder-gray-400 bg-white text-sm md:text-base">
                         </div>
                     </div>
 
                     <!-- District Select -->
-                    <div class="md:w-64">
-                        <label class="block text-xs font-bold text-gray-500 mb-1 md:mb-2 mr-1">المنطقة</label>
+                    <div class="md:w-48">
+                        <label class="block text-xs font-bold text-gray-500 mb-1 md:mb-2 mr-1">{{ __('District') }}</label>
                         <div class="relative">
                             <select x-model="districtId" @change="onDistrictChange()"
                                     class="w-full border-2 border-gray-200 rounded-lg py-2.5 md:py-3 pl-10 md:pl-12 pr-4 focus:ring-2 focus:ring-brand-green focus:border-brand-green text-gray-800 bg-white cursor-pointer appearance-none text-sm md:text-base" style="background-image: none !important; -webkit-appearance: none; -moz-appearance: none;">
-                                <option value="">كل المناطق</option>
+                                <option value="">{{ __('All Districts') }}</option>
                                 @foreach($districts as $district)
                                     <option value="{{ $district->id }}">{{ $district->name }}</option>
                                 @endforeach
+                            </select>
+                            <svg class="w-5 h-5 text-gray-500 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                            </svg>
+                        </div>
+                    </div>
+
+                    <!-- Sub Area Select (الحي) -->
+                    <div class="md:w-48" x-show="subAreas.length > 0" x-cloak>
+                        <label class="block text-xs font-bold text-gray-500 mb-1 md:mb-2 mr-1">{{ __('Sub Area') }}</label>
+                        <div class="relative">
+                            <select x-model="subAreaId" @change="performSearch()"
+                                    class="w-full border-2 border-gray-200 rounded-lg py-2.5 md:py-3 pl-10 md:pl-12 pr-4 focus:ring-2 focus:ring-brand-green focus:border-brand-green text-gray-800 bg-white cursor-pointer appearance-none text-sm md:text-base" style="background-image: none !important; -webkit-appearance: none; -moz-appearance: none;">
+                                <option value="">{{ __('All Sub Areas') }}</option>
+                                <template x-for="area in subAreas" :key="area.id">
+                                    <option :value="area.id" x-text="area.name"></option>
+                                </template>
                             </select>
                             <svg class="w-5 h-5 text-gray-500 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
@@ -186,7 +204,7 @@
                         <svg class="w-5 h-5 text-brand-green" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path>
                         </svg>
-                        تصفية النتائج
+                        {{ __('Filter Results') }}
                     </span>
                     <svg class="w-5 h-5 transition-transform" :class="mobileFiltersOpen ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
@@ -195,7 +213,7 @@
             </div>
 
             <!-- Sidebar Filters -->
-            <div class="w-full lg:w-1/4" x-data="{ mobileFiltersOpen: false }" :class="mobileFiltersOpen || 'hidden lg:block'">
+            <div class="w-full lg:w-1/4" :class="mobileFiltersOpen ? '' : 'hidden lg:block'">
                 <div class="bg-white rounded-xl shadow-md border-2 border-gray-200 lg:sticky lg:top-24 overflow-hidden">
                     <!-- Sidebar Header -->
                     <div class="bg-gray-50 px-4 md:px-5 py-3 md:py-4 border-b-2 border-gray-200 hidden lg:block">
@@ -203,7 +221,7 @@
                             <svg class="w-5 h-5 text-brand-green" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path>
                             </svg>
-                            تصفية النتائج
+                            {{ __('Filter Results') }}
                         </h3>
                     </div>
 
@@ -216,13 +234,13 @@
                                     <svg class="w-4 h-4 text-brand-green" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
                                     </svg>
-                                    المنطقة
+                                    {{ __('District') }}
                                 </span>
                             </label>
                             <div class="relative">
                                 <select x-model="districtId" @change="onDistrictChange()" 
                                         class="w-full border-2 border-gray-300 rounded-lg py-2.5 pl-10 pr-3 text-sm focus:ring-2 focus:ring-brand-green focus:border-brand-green bg-white font-medium cursor-pointer appearance-none" style="background-image: none !important; -webkit-appearance: none; -moz-appearance: none;">
-                                    <option value="">كل المناطق</option>
+                                    <option value="">{{ __('All Districts') }}</option>
                                     @foreach($districts as $district)
                                         <option value="{{ $district->id }}">{{ $district->name }}</option>
                                     @endforeach
@@ -240,13 +258,13 @@
                                     <svg class="w-4 h-4 text-brand-green" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
                                     </svg>
-                                    الحي
+                                    {{ __('Sub Area') }}
                                 </span>
                             </label>
                             <div class="relative">
                                 <select x-model="subAreaId" @change="performSearch()"
                                         class="w-full border-2 border-gray-300 rounded-lg py-2.5 pl-10 pr-3 text-sm focus:ring-2 focus:ring-brand-green focus:border-brand-green bg-white font-medium cursor-pointer appearance-none" style="background-image: none !important; -webkit-appearance: none; -moz-appearance: none;">
-                                    <option value="">كل الأحياء</option>
+                                    <option value="">{{ __('All Sub Areas') }}</option>
                                     <template x-for="area in subAreas" :key="area.id">
                                         <option :value="area.id" x-text="area.name"></option>
                                     </template>
@@ -267,7 +285,7 @@
                                     <svg class="w-4 h-4 text-brand-green" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
                                     </svg>
-                                    التصنيفات
+                                    {{ __('Categories') }}
                                 </span>
                             </label>
                             <div class="space-y-2 max-h-72 overflow-y-auto pr-1 custom-scrollbar">

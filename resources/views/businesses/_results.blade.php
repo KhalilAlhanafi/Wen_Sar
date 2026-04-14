@@ -3,15 +3,15 @@
     <div class="flex flex-col md:flex-row">
         <!-- Image Section -->
         <div class="w-full md:w-72 h-56 md:h-auto flex-shrink-0 bg-gray-100 relative overflow-hidden border-b-2 md:border-b-0 md:border-l-2 border-gray-200">
-            @if($business->images && count($business->images) > 0)
-                <img src="{{ asset('storage/' . $business->images[0]) }}" alt="{{ $business->name }}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
-            @elseif($business->logo)
+            @if($business->logo)
                 <img src="{{ asset('storage/' . $business->logo) }}" alt="{{ $business->name }}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
+            @elseif($business->images && count($business->images) > 0)
+                <img src="{{ asset('storage/' . $business->images[0]) }}" alt="{{ $business->name }}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
             @else
                 <img src="https://images.unsplash.com/photo-1555396273-367ea4eb4db5?q=80&w=1974&auto=format&fit=crop" alt="{{ $business->name }}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
             @endif
             @if($business->is_featured)
-                <div class="absolute top-3 right-3 bg-orange-500 text-white text-xs font-bold px-3 py-1.5 rounded-lg shadow-lg border-2 border-orange-600">مميز</div>
+                <div class="absolute top-3 right-3 bg-orange-500 text-white text-xs font-bold px-3 py-1.5 rounded-lg shadow-lg border-2 border-orange-600">{{ __('Featured') }}</div>
             @endif
         </div>
 
@@ -35,7 +35,7 @@
                         <svg class="w-4 h-4 ml-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
                         </svg>
-                        {{ $business->subArea?->name ?? 'غير محدد' }}
+                        {{ $business->subArea?->name ?? __('Not specified') }}
                     </div>
                     <div class="flex items-center bg-gray-100 text-gray-600 px-3 py-1.5 rounded-lg border border-gray-200 font-medium text-sm">
                         <svg class="w-4 h-4 ml-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -54,16 +54,22 @@
             <!-- Footer -->
             <div class="flex justify-between items-center mt-5 pt-4 border-t-2 border-gray-100">
                 <div class="flex items-center gap-4">
+                    @if($business->opening_time || $business->closing_time)
                     <span class="text-xs text-brand-green font-bold flex items-center uppercase tracking-wide bg-brand-green/5 px-3 py-1.5 rounded-lg border border-brand-green/20">
                         <span class="w-2 h-2 bg-brand-green rounded-full ml-2 animate-pulse"></span>
-                        مفتوح الآن
+                        {{ $business->opening_time ? substr($business->opening_time, 0, 5) : '--:--' }} - {{ $business->closing_time ? substr($business->closing_time, 0, 5) : '--:--' }}
                     </span>
+                    @else
+                    <span class="text-xs text-gray-500 font-bold flex items-center uppercase tracking-wide bg-gray-100 px-3 py-1.5 rounded-lg border border-gray-200">
+                        {{ __('Working hours not specified') }}
+                    </span>
+                    @endif
                     <span class="text-xs text-gray-500 font-medium bg-gray-100 px-3 py-1.5 rounded-lg border border-gray-200">
-                        {{ $business->views_count }} مشاهدة
+                        {{ $business->views_count }} {{ __('views') }}
                     </span>
                 </div>
                 <a href="{{ route('business.show', $business->id) }}" class="text-brand-green font-bold text-sm bg-white border-2 border-brand-green px-6 py-2 rounded-lg hover:bg-brand-green hover:text-white hover:shadow-lg transition-all duration-300">
-                    عرض التفاصيل
+                    {{ __('View Details') }}
                 </a>
             </div>
         </div>
@@ -77,7 +83,7 @@
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 9.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
         </svg>
     </div>
-    <h3 class="text-xl font-bold text-gray-600 mb-2">عذراً، لم نجد نتائج تطابق بحثك</h3>
-    <p class="text-gray-500">جرب البحث بكلمات مختلفة أو في منطقة أخرى</p>
+    <h3 class="text-xl font-bold text-gray-600 mb-2">{{ __('No results found') }}</h3>
+    <p class="text-gray-500">{{ __('Try different search terms or another area') }}</p>
 </div>
 @endforelse

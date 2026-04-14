@@ -41,37 +41,66 @@
                     </div>
                 </div>
             </div>
-            <div class="flex gap-3 md:gap-4 w-full md:w-auto mt-4 md:mt-0" 
-                 x-data="{ 
-                    isFavorite: {{ auth()->check() && auth()->user()->favorites->contains($business->id) ? 'true' : 'false' }},
-                    toggleFavorite() {
-                        fetch('{{ route('favorites.toggle', $business->id) }}', {
-                            method: 'POST',
-                            headers: {
-                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                                'Content-Type': 'application/json',
-                                'Accept': 'application/json'
-                            }
-                        })
-                        .then(res => res.json())
-                        .then(data => {
-                            this.isFavorite = (data.status === 'added');
-                        })
-                        .catch(err => console.error(err));
-                    }
-                 }">
+            <div class="flex gap-3 md:gap-4 w-full md:w-auto mt-4 md:mt-0"
+                 x-data="{ showLoginAlert: false, isAuth: {{ auth()->check() ? 'true' : 'false' }} }">
                 <button class="flex-grow md:flex-none flex items-center justify-center gap-2 md:gap-3 bg-brand-green text-white font-bold py-3 md:py-4 px-6 md:px-10 rounded-xl md:rounded-2xl hover:opacity-90 transition-all shadow-xl shadow-brand-green/20 text-sm md:text-base">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path></svg>
                     <span class="hidden sm:inline">اتصل الآن</span>
                     <span class="sm:hidden">اتصل</span>
                 </button>
-                <button @click="toggleFavorite" 
-                        :class="isFavorite ? 'bg-red-50 text-red-500 border-red-100' : 'bg-white text-gray-400 border-gray-100'"
-                        class="p-3 md:p-4 border rounded-xl md:rounded-2xl hover:bg-red-50 transition-all group active:scale-90">
-                    <svg class="w-5 h-5 md:w-6 md:h-6" :fill="isFavorite ? 'currentColor' : 'none'" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path></svg>
-                </button>
+                @auth
+                    @php($isFav = auth()->user()->favorites->contains($business->id))
+                    <form action="{{ $isFav ? route('favorites.destroy', $business) : route('favorites.store', $business) }}" method="POST" class="inline">
+                        @csrf
+                        @if($isFav)
+                            @method('DELETE')
+                        @endif
+                        <button type="submit"
+                                class="p-3 md:p-4 border rounded-xl md:rounded-2xl {{ $isFav ? 'bg-red-50 text-red-500 border-red-100' : 'bg-white text-gray-400 border-gray-100' }} hover:bg-red-50 transition-all group active:scale-90">
+                            <svg class="w-5 h-5 md:w-6 md:h-6 {{ $isFav ? 'fill-current' : '' }}" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path></svg>
+                        </button>
+                    </form>
+                @else
+                    <button x-on:click.prevent="showLoginAlert = true; console.log('clicked!')"
+                            class="p-3 md:p-4 border rounded-xl md:rounded-2xl bg-white text-gray-400 border-gray-100 hover:bg-red-50 transition-all group active:scale-90">
+                        <svg class="w-5 h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path></svg>
+                    </button>
+                @endauth
+
+                <!-- Login Required Modal -->
+                <div x-show="showLoginAlert" x-cloak
+                     x-transition:enter="transition ease-out duration-300"
+                     x-transition:enter-start="opacity-0"
+                     x-transition:enter-end="opacity-100"
+                     x-transition:leave="transition ease-in duration-200"
+                     x-transition:leave-start="opacity-100"
+                     x-transition:leave-end="opacity-0"
+                     class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+                     style="display: none;">
+                    <div x-show="showLoginAlert"
+                         x-transition:enter="transition ease-out duration-300"
+                         x-transition:enter-start="opacity-0 scale-90"
+                         x-transition:enter-end="opacity-100 scale-100"
+                         x-transition:leave="transition ease-in duration-200"
+                         x-transition:leave-start="opacity-100 scale-100"
+                         x-transition:leave-end="opacity-0 scale-90"
+                         @click.away="showLoginAlert = false"
+                         class="bg-white rounded-2xl md:rounded-3xl p-6 md:p-10 max-w-md w-full text-center shadow-2xl">
+                        <div class="w-20 h-20 md:w-24 md:h-24 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                            <svg class="w-10 h-10 md:w-12 md:h-12 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                            </svg>
+                        </div>
+                        <h3 class="text-xl md:text-2xl font-bold text-gray-800 mb-3">تسجيل الدخول مطلوب</h3>
+                        <p class="text-gray-500 text-sm md:text-base mb-8">يجب تسجيل الدخول أو إنشاء حساب جديد لإضافة الأماكن إلى قائمة المفضلة</p>
+                        <div class="flex flex-col sm:flex-row gap-3">
+                            <a href="{{ route('login') }}" class="flex-1 bg-brand-green text-white font-bold py-3 px-6 rounded-xl hover:opacity-90 transition-all">تسجيل الدخول</a>
+                            <a href="{{ route('register') }}" class="flex-1 bg-gray-100 text-gray-700 font-bold py-3 px-6 rounded-xl hover:bg-gray-200 transition-all">إنشاء حساب</a>
+                        </div>
+                        <button @click="showLoginAlert = false" class="mt-4 text-gray-400 text-sm hover:text-gray-600 transition-colors">إغلاق</button>
+                    </div>
+                </div>
             </div>
-        </div>
     </div>
 </div>
 
@@ -202,6 +231,32 @@
                              <p class="font-black text-base md:text-lg text-gray-800 truncate" dir="ltr">{{ $business->phone }}</p>
                          </div>
                     </div>
+
+                    @if($business->english_name)
+                    <div class="flex items-start gap-3 md:gap-5 p-3 md:p-4 rounded-xl md:rounded-2xl hover:bg-brand-white transition-colors">
+                         <div class="w-10 h-10 md:w-12 md:h-12 bg-blue-50 text-blue-600 rounded-xl md:rounded-2xl flex items-center justify-center shrink-0 font-bold">
+                             <svg class="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129"></path></svg>
+                         </div>
+                         <div class="min-w-0">
+                             <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">الاسم بالإنجليزي</p>
+                             <p class="font-bold text-gray-800 text-base md:text-lg truncate" dir="ltr">{{ $business->english_name }}</p>
+                         </div>
+                    </div>
+                    @endif
+
+                    @if($business->opening_time || $business->closing_time)
+                    <div class="flex items-start gap-3 md:gap-5 p-3 md:p-4 rounded-xl md:rounded-2xl hover:bg-brand-white transition-colors">
+                         <div class="w-10 h-10 md:w-12 md:h-12 bg-purple-50 text-purple-600 rounded-xl md:rounded-2xl flex items-center justify-center shrink-0 font-bold">
+                             <svg class="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                         </div>
+                         <div class="min-w-0">
+                             <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">أوقات العمل</p>
+                             <p class="font-bold text-gray-800 text-base md:text-lg truncate" dir="ltr">
+                                {{ $business->opening_time ? substr($business->opening_time, 0, 5) : '--:--' }} - {{ $business->closing_time ? substr($business->closing_time, 0, 5) : '--:--' }}
+                             </p>
+                         </div>
+                    </div>
+                    @endif
 
                     <div class="flex items-start gap-3 md:gap-5 p-3 md:p-4 rounded-xl md:rounded-2xl hover:bg-brand-white transition-colors">
                          <div class="w-10 h-10 md:w-12 md:h-12 bg-orange-50 text-orange-600 rounded-xl md:rounded-2xl flex items-center justify-center shrink-0 font-bold">

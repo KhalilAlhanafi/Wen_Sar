@@ -8,10 +8,10 @@
     </div>
     <div class="relative max-w-7xl mx-auto px-4 py-16 md:py-24 lg:py-32 sm:px-6 lg:px-8 flex flex-col items-center text-center">
         <h1 class="text-2xl sm:text-4xl lg:text-6xl font-extrabold text-white mb-4 md:mb-6 leading-tight">
-            دليلك الشامل في <span class="text-orange-400">سوريا</span>
+            {{ __('Your comprehensive guide in') }} <span class="text-orange-400">{{ __('Syria') }}</span>
         </h1>
         <p class="text-base md:text-xl text-brand-white/80 mb-6 md:mb-10 max-w-2xl px-4">
-            ابحث عن المحال التجارية، المهن، المدارس، الأطباء وكل ما تحتاجه في دمشق وسوريا.
+            {{ __('Search for shops, professions, schools, doctors and everything you need in Damascus and Syria.') }}
         </p>
 
         <!-- Search Box -->
@@ -38,11 +38,11 @@
             <form action="{{ route('business.search') }}" method="GET" class="contents">
                 <!-- Governorate -->
                 <div>
-                    <label class="block text-xs font-bold text-gray-500 mb-1 mr-1">المحافظة <span class="text-red-500">*</span></label>
+                    <label class="block text-xs font-bold text-gray-500 mb-1 mr-1">{{ __('Governorate') }} <span class="text-red-500">*</span></label>
                     <div class="relative">
                         <select x-model="governorateId" @change="updateDistricts()" 
                                 class="w-full border-gray-200 rounded-lg focus:ring-brand-green focus:border-brand-green text-sm bg-gray-50 py-2.5 pl-10 pr-3 appearance-none cursor-pointer" style="background-image: none !important; -webkit-appearance: none; -moz-appearance: none;">
-                            <option value="">اختر المحافظة...</option>
+                            <option value="">{{ __('Select Governorate...') }}</option>
                             @foreach($governorates as $gov)
                                 <option value="{{ $gov->id }}" {{ $loop->first ? 'selected' : '' }}>{{ $gov->name }}</option>
                             @endforeach
@@ -54,11 +54,11 @@
                 </div>
                 <!-- District -->
                 <div>
-                    <label class="block text-xs font-bold text-gray-500 mb-1 mr-1">المنطقة <span class="text-red-500">*</span></label>
+                    <label class="block text-xs font-bold text-gray-500 mb-1 mr-1">{{ __('District') }} <span class="text-red-500">*</span></label>
                     <div class="relative">
                         <select name="district_id" x-model="districtId"
                                 class="w-full border-gray-200 rounded-lg focus:ring-brand-green focus:border-brand-green text-sm bg-gray-50 py-2.5 pl-10 pr-3 appearance-none cursor-pointer" style="background-image: none !important; -webkit-appearance: none; -moz-appearance: none;">
-                            <option value="">اختر المنطقة...</option>
+                            <option value="">{{ __('Select District...') }}</option>
                             <template x-for="district in districts" :key="district.id">
                                 <option :value="district.id" x-text="district.name"></option>
                             </template>
@@ -70,11 +70,11 @@
                 </div>
                 <!-- Category -->
                 <div>
-                    <label class="block text-xs font-bold text-gray-500 mb-1 mr-1">التصنيف <span class="text-red-500">*</span></label>
+                    <label class="block text-xs font-bold text-gray-500 mb-1 mr-1">{{ __('Category') }} <span class="text-red-500">*</span></label>
                     <div class="relative">
                         <select name="category_id" x-model="categoryId"
                                 class="w-full border-gray-200 rounded-lg focus:ring-brand-green focus:border-brand-green text-sm bg-gray-50 py-2.5 pl-10 pr-3 appearance-none cursor-pointer" style="background-image: none !important; -webkit-appearance: none; -moz-appearance: none;">
-                            <option value="">ماذا تبحث؟</option>
+                            <option value="">{{ __('What are you looking for?') }}</option>
                             @foreach($categories as $cat)
                                 <option value="{{ $cat->id }}">{{ $cat->name }}</option>
                             @endforeach
@@ -88,8 +88,8 @@
                         :disabled="!canSearch"
                         :class="canSearch ? 'bg-brand-green hover:opacity-90 cursor-pointer' : 'bg-gray-300 cursor-not-allowed'"
                         class="text-white font-bold py-3 px-4 md:py-3.5 md:px-6 rounded-lg md:rounded-xl transition duration-300 shadow-lg text-sm md:text-base">
-                    <span x-show="canSearch">ابحث الآن</span>
-                    <span x-show="!canSearch">ابحث الآن</span>
+                    <span x-show="canSearch">{{ __('Search Now') }}</span>
+                    <span x-show="!canSearch">{{ __('Search Now') }}</span>
                 </button>
             </form>
         </div>
@@ -99,8 +99,8 @@
 <!-- Categories Grid -->
 <div class="max-w-7xl mx-auto px-4 py-10 md:py-16 sm:px-6 lg:px-8">
     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 md:mb-10 gap-3">
-        <h2 class="text-xl md:text-3xl font-bold text-gray-800">تصفح حسب التصنيف</h2>
-        <a href="{{ route('categories.index') }}" class="text-brand-green hover:underline font-medium text-sm md:text-base">عرض الكل ←</a>
+        <h2 class="text-xl md:text-3xl font-bold text-gray-800">{{ __('Browse by Category') }}</h2>
+        <a href="{{ route('categories.index') }}" class="text-brand-green hover:underline font-medium text-sm md:text-base">{{ __('View All') }} ←</a>
     </div>
     
     <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-6">
@@ -159,7 +159,7 @@
                 @endif
             </div>
             <h3 class="font-bold text-sm md:text-base text-gray-800 group-hover:text-brand-green transition-colors truncate">{{ $cat->name }}</h3>
-            <p class="text-xs text-gray-400 mt-1">{{ $cat->businesses_count ?? $cat->businesses->count() }} مكان</p>
+            <p class="text-xs text-gray-400 mt-1">{{ $cat->businesses_count ?? $cat->businesses->count() }} {{ __('place') }}</p>
         </a>
         @endforeach
     </div>
@@ -170,46 +170,46 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 md:mb-10 gap-3">
             <div>
-                <h2 class="text-xl md:text-3xl font-bold text-gray-800">أماكن مميزة</h2>
-                <p class="text-gray-500 mt-1 md:mt-2 text-sm md:text-base">نخبة من أفضل المحال والخدمات في دمشق</p>
+                <h2 class="text-xl md:text-3xl font-bold text-gray-800">{{ __('Featured Places') }}</h2>
+                <p class="text-gray-500 mt-1 md:mt-2 text-sm md:text-base">{{ __('A selection of the best shops and services in Damascus') }}</p>
             </div>
-            <a href="{{ route('business.featured') }}" class="text-brand-green hover:underline font-medium text-sm md:text-base">عرض المزيد ←</a>
+            <a href="{{ route('business.featured') }}" class="text-brand-green hover:underline font-medium text-sm md:text-base">{{ __('View More') }} ←</a>
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-8">
             @foreach($featuredBusinesses as $business)
             <div class="bg-white rounded-xl md:rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-shadow border border-gray-100 group active:scale-[0.98] transition-transform">
                 <div class="h-40 md:h-48 bg-gray-200 relative">
-                    @if($business->images && count($business->images) > 0)
-                        <img src="{{ asset('storage/' . $business->images[0]) }}" alt="{{ $business->name }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
-                    @elseif($business->logo)
+                    @if($business->logo)
                         <img src="{{ asset('storage/' . $business->logo) }}" alt="{{ $business->name }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                    @elseif($business->images && count($business->images) > 0)
+                        <img src="{{ asset('storage/' . $business->images[0]) }}" alt="{{ $business->name }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
                     @else
                         <img src="https://images.unsplash.com/photo-1555396273-367ea4eb4db5?q=80&w=1974&auto=format&fit=crop" alt="{{ $business->name }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
                     @endif
                     <div class="absolute top-3 right-3 md:top-4 md:right-4 bg-orange-500 text-white text-xs font-bold px-2 py-1 md:px-3 md:py-1 rounded-full shadow-lg">
-                        مميز
+                        {{ __('Featured') }}
                     </div>
                 </div>
                 <div class="p-4 md:p-6">
                     <div class="flex justify-between items-start mb-2">
                         <span class="text-xs font-bold text-brand-green px-2 py-1 bg-brand-green/5 rounded truncate max-w-[50%]">{{ $business->category->name }}</span>
                         <div class="flex items-center text-yellow-400">
-                            <span class="text-xs font-bold text-gray-700 ml-1">4.8</span>
+                            <span class="text-xs font-bold text-gray-700 ml-1">{{ number_format($business->averageRating(), 1) }}</span>
                             <svg class="w-4 h-4 fill-current" viewBox="0 0 20 20"><path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z"/></svg>
                         </div>
                     </div>
                     <h3 class="text-lg md:text-xl font-bold text-gray-800 mb-1 md:mb-2 truncate">{{ $business->name }}</h3>
                     <div class="flex items-center text-gray-500 text-xs md:text-sm mb-3 md:mb-4">
                         <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-                        <span class="truncate">{{ $business->subArea?->name ?? 'غير محدد' }}</span>
+                        <span class="truncate">{{ $business->subArea?->name ?? __('Not specified') }}</span>
                     </div>
                     <div class="flex justify-between items-center border-t border-gray-50 pt-3 md:pt-4">
                         <div class="text-xs text-gray-400">
-                            <span class="font-bold text-gray-600">{{ $business->views_count }}</span> مشاهدة
+                            <span class="font-bold text-gray-600">{{ $business->views_count }}</span> {{ __('views') }}
                         </div>
-                        <a href="#" class="text-brand-green font-bold text-sm flex items-center group-hover:translate-x-[-4px] transition-transform">
-                            التفاصيل
+                        <a href="{{ route('business.show', $business) }}" class="text-brand-green font-bold text-sm flex items-center group-hover:translate-x-[-4px] transition-transform">
+                            {{ __('Details') }}
                             <svg class="w-4 h-4 mr-1 rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
                         </a>
                     </div>

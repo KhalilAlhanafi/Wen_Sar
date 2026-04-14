@@ -16,7 +16,7 @@ class BusinessController extends Controller
     {
         /** @var \App\Models\User $user */
         $user = Auth::user();
-        $businesses = $user->businesses()->with(['category', 'district'])->get();
+        $businesses = $user->businesses()->with(['category', 'district'])->latest()->get();
         return view('owner.businesses.index', compact('businesses'));
     }
 
@@ -31,11 +31,14 @@ class BusinessController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
+            'english_name' => 'nullable|string|max:255',
             'description' => 'nullable|string',
             'district_id' => 'required|exists:districts,id',
             'sub_area_id' => 'nullable|exists:sub_areas,id',
             'category_id' => 'required|exists:categories,id',
             'phone' => 'required|string|regex:/^09[0-9]{8}$/',
+            'opening_time' => 'nullable|date_format:H:i',
+            'closing_time' => 'nullable|date_format:H:i',
             'address' => 'nullable|string',
             'logo' => 'nullable|image|max:2048',
             'images' => 'nullable|array',
@@ -77,9 +80,12 @@ class BusinessController extends Controller
         // Remove fields that are not in the database
         unset($validated['facebook'], $validated['instagram']);
 
+        // Set status to pending for manager approval
+        $validated['status'] = 'pending';
+
         Business::create($validated);
 
-        return redirect()->route('owner.businesses.index')->with('success', 'تم إضافة المنشأة بنجاح.');
+        return redirect()->route('owner.businesses.index')->with('success', __('Business submitted successfully and is pending approval.'));
     }
 
     public function edit(Business $business)
@@ -98,11 +104,14 @@ class BusinessController extends Controller
 
         $validated = $request->validate([
             'name' => 'required|string|max:255',
+            'english_name' => 'nullable|string|max:255',
             'description' => 'nullable|string',
             'district_id' => 'required|exists:districts,id',
             'sub_area_id' => 'nullable|exists:sub_areas,id',
             'category_id' => 'required|exists:categories,id',
             'phone' => 'required|string|regex:/^09[0-9]{8}$/',
+            'opening_time' => 'nullable|date_format:H:i',
+            'closing_time' => 'nullable|date_format:H:i',
             'address' => 'nullable|string',
             'logo' => 'nullable|image|max:2048',
             'images' => 'nullable|array',

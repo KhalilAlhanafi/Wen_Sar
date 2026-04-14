@@ -60,6 +60,7 @@ class RegisteredUserController extends Controller
             $user->assignRole('user');
         }
 
+        // All users go to home page after registration
         return redirect('/');
     }
 }

@@ -11,6 +11,7 @@ class Business extends Model
 
     protected $fillable = [
         'name',
+        'english_name',
         'description',
         'logo',
         'images',
@@ -19,16 +20,25 @@ class Business extends Model
         'category_id',
         'owner_id',
         'phone',
+        'opening_time',
+        'closing_time',
         'address',
         'social_links',
         'is_featured',
-        'featured_rank'
+        'featured_rank',
+        'status',
+        'approved_at',
+        'contract_ends_at',
+        'contract_duration_days',
+        'approved_by',
     ];
 
     protected $casts = [
         'images' => 'array',
         'social_links' => 'array',
         'is_featured' => 'boolean',
+        'approved_at' => 'datetime',
+        'contract_ends_at' => 'datetime',
     ];
 
     public function owner()
@@ -64,5 +74,51 @@ class Business extends Model
             return $avg ?: 0;
         }
         return $this->reviews()->avg('rating') ?: 0;
+    }
+
+    public function favoritedBy()
+    {
+        return $this->belongsToMany(User::class, 'favorites');
+    }
+
+    public function isFavoritedBy($user)
+    {
+        if (!$user) {
+            return false;
+        }
+        return $this->favoritedBy()->where('user_id', $user->id)->exists();
+    }
+
+    public function approvedBy()
+    {
+        return $this->belongsTo(Manager::class, 'approved_by');
+    }
+
+    public function scopeApproved($query)
+    {
+        return $query->where('status', 'approved')
+                     ->where(function($q) {
+                         $q->whereNull('contract_ends_at')
+                           ->orWhere('contract_ends_at', '>', now());
+                     });
+    }
+
+    public function scopePending($query)
+    {
+        return $query->where('status', 'pending');
+    }
+
+    public function isApproved()
+    {
+        return $this->status === 'approved' && 
+               ($this->contract_ends_at === null || $this->contract_ends_at > now());
+    }
+
+    public function daysUntilExpiry()
+    {
+        if (!$this->contract_ends_at) {
+            return null;
+        }
+        return now()->diffInDays($this->contract_ends_at, false);
     }
 }
