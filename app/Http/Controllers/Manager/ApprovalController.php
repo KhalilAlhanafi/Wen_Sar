@@ -29,7 +29,7 @@ class ApprovalController extends Controller
     public function approve(Request $request, Business $business)
     {
         $request->validate([
-            'contract_duration' => 'required|in:30,90,180,365',
+            'contract_duration' => 'required|in:14,30,90,180,365',
         ]);
 
         $duration = (int) $request->contract_duration;

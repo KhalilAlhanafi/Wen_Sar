@@ -52,7 +52,7 @@
             </div>
 
             <!-- Footer -->
-            <div class="flex justify-between items-center mt-5 pt-4 border-t-2 border-gray-100">
+            <div class="flex flex-col sm:flex-row justify-between items-center mt-5 pt-4 border-t-2 border-gray-100 gap-3 sm:gap-0">
                 <div class="flex items-center gap-4">
                     @if($business->opening_time || $business->closing_time)
                     <span class="text-xs text-brand-green font-bold flex items-center uppercase tracking-wide bg-brand-green/5 px-3 py-1.5 rounded-lg border border-brand-green/20">
@@ -68,7 +68,7 @@
                         {{ $business->views_count }} {{ __('views') }}
                     </span>
                 </div>
-                <a href="{{ route('business.show', $business->id) }}" class="text-brand-green font-bold text-sm bg-white border-2 border-brand-green px-6 py-2 rounded-lg hover:bg-brand-green hover:text-white hover:shadow-lg transition-all duration-300">
+                <a href="{{ route('business.show', $business->id) }}" class="text-brand-green font-bold text-sm bg-white border-2 border-brand-green px-6 py-2 rounded-lg hover:bg-brand-green hover:text-white hover:shadow-lg transition-all duration-300 text-center w-full sm:w-auto">
                     {{ __('View Details') }}
                 </a>
             </div>

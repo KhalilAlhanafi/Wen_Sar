@@ -128,6 +128,7 @@
                     <label class="block text-sm font-bold text-gray-700 mb-2">{{ __('Contract Duration') }}</label>
                     <select name="contract_duration" required
                             class="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:border-brand-green focus:outline-none transition-colors bg-white">
+                        <option value="14">14 {{ __('days') }}</option>
                         <option value="30">30 {{ __('days') }}</option>
                         <option value="90" selected>90 {{ __('days') }}</option>
                         <option value="180">180 {{ __('days') }}</option>

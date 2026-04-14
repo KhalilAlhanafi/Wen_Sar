@@ -22,7 +22,7 @@ Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/categories', [HomeController::class, 'categories'])->name('categories.index');
 Route::get('/about', [HomeController::class, 'about'])->name('about');
 Route::get('/contact', [HomeController::class, 'contact'])->name('contact');
-Route::post('/contact', [HomeController::class, 'contactSubmit'])->name('contact.submit');
+Route::post('/contact', [HomeController::class, 'contactSubmit'])->middleware('throttle:contact')->name('contact.submit');
 Route::get('/api/districts/{district}/sub-areas', [DistrictController::class, 'subAreas']);
 Route::get('/api/governorates/{governorate}/districts', [DistrictController::class, 'districtsByGovernorate']);
 Route::get('/search', [BusinessController::class, 'search'])->name('business.search');

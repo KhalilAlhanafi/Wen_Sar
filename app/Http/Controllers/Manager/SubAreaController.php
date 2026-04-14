@@ -19,12 +19,12 @@ class SubAreaController extends Controller
         if ($request->filled('search')) {
             $search = $request->input('search');
             $query->where(function($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
+                $q->where('name', 'like', '%' . $search . '%')
                   ->orWhereHas('governorate', function($qg) use ($search) {
-                      $qg->where('name', 'like', "%{$search}%");
+                      $qg->where('name', 'like', '%' . $search . '%');
                   })
                   ->orWhereHas('subAreas', function($qs) use ($search) {
-                      $qs->where('name', 'like', "%{$search}%");
+                      $qs->where('name', 'like', '%' . $search . '%');
                   });
             });
         }

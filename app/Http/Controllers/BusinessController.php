@@ -93,6 +93,11 @@ class BusinessController extends Controller
 
     public function show(Business $business)
     {
+        // Only show approved businesses to public
+        if ($business->status !== 'approved') {
+            abort(404);
+        }
+        
         $business->increment('views_count');
         $business->load(['category', 'subArea', 'reviews' => function($query) {
             $query->latest()->with('user');

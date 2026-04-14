@@ -39,12 +39,12 @@ class BusinessController extends Controller
             'phone' => 'required|string|regex:/^09[0-9]{8}$/',
             'opening_time' => 'nullable|date_format:H:i',
             'closing_time' => 'nullable|date_format:H:i',
-            'address' => 'nullable|string',
-            'logo' => 'nullable|image|max:2048',
-            'images' => 'nullable|array',
-            'images.*' => 'nullable|image|max:2048',
-            'facebook' => 'nullable|url',
-            'instagram' => 'nullable|url',
+            'address' => 'nullable|string|max:500',
+            'logo' => 'nullable|mimes:jpg,jpeg,png,webp|max:2048',
+            'images' => 'nullable|array|max:5',
+            'images.*' => 'nullable|mimes:jpg,jpeg,png,webp|max:2048',
+            'facebook' => 'nullable|url|max:255',
+            'instagram' => 'nullable|url|max:255',
         ]);
 
         $validated['owner_id'] = Auth::id();
@@ -112,13 +112,13 @@ class BusinessController extends Controller
             'phone' => 'required|string|regex:/^09[0-9]{8}$/',
             'opening_time' => 'nullable|date_format:H:i',
             'closing_time' => 'nullable|date_format:H:i',
-            'address' => 'nullable|string',
-            'logo' => 'nullable|image|max:2048',
-            'images' => 'nullable|array',
-            'images.*' => 'nullable|image|max:2048',
+            'address' => 'nullable|string|max:500',
+            'logo' => 'nullable|mimes:jpg,jpeg,png,webp|max:2048',
+            'images' => 'nullable|array|max:5',
+            'images.*' => 'nullable|mimes:jpg,jpeg,png,webp|max:2048',
             'images_to_delete' => 'nullable|string',
-            'facebook' => 'nullable|url',
-            'instagram' => 'nullable|url',
+            'facebook' => 'nullable|url|max:255',
+            'instagram' => 'nullable|url|max:255',
         ]);
 
         // Handle logo upload

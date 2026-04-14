@@ -12,7 +12,7 @@ class HomeController extends Controller
     public function index()
     {
         $governorates = Governorate::with('districts')->get();
-        $categories = Category::whereNull('parent_id')->get();
+        $categories = Category::whereNull('parent_id')->with(['subcategories'])->get();
         $featuredBusinesses = Business::where('is_featured', true)
             ->with(['category', 'subArea'])
             ->orderBy('featured_rank')

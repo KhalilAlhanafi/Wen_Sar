@@ -7,31 +7,27 @@
 @endpush
 
 @section('content')
+@php
+    $initialResultsHtml = view('businesses._results', ['businesses' => $businesses, 'categories' => $categories, 'districts' => $districts])->render();
+@endphp
 <div class="bg-gray-50 min-h-screen pb-12" x-data="{
     searchQuery: '{{ request('query') }}',
     districtId: '{{ request('district_id') }}',
     subAreaId: '{{ request('sub_area_id') }}',
     categoryId: '{{ request('category_id') ?? (isset($category) ? $category->id : '') }}',
-    resultsHtml: '',
+    resultsHtml: {{ Illuminate\Support\Js::encode($initialResultsHtml) }},
     resultsCount: {{ $businesses->count() }},
     isLoading: false,
     searchTimeout: null,
     subAreas: [],
-    hasSearched: false,
     mobileFiltersOpen: false,
-    
+
     async init() {
-        // Wait for DOM to be fully ready
-        await $nextTick;
-        
         // Load sub-areas if district is selected
         if(this.districtId) {
             await this.updateSubAreas();
             this.subAreaId = '{{ request('sub_area_id') }}';
         }
-        
-        // Store initial results HTML
-        this.resultsHtml = $refs.resultsContainer.innerHTML;
     },
     
     async updateSubAreas() {
@@ -53,16 +49,16 @@
     
     async performSearch() {
         this.isLoading = true;
-        
+
         const params = new URLSearchParams();
         if(this.searchQuery) params.append('query', this.searchQuery);
         if(this.districtId) params.append('district_id', this.districtId);
         if(this.subAreaId) params.append('sub_area_id', this.subAreaId);
         if(this.categoryId) params.append('category_id', this.categoryId);
-        
+
         try {
             const isCategoryPage = {{ isset($category) ? 'true' : 'false' }};
-            const searchUrl = isCategoryPage 
+            const searchUrl = isCategoryPage
                 ? `/category/{{ $category->id ?? 0 }}?${params.toString()}`
                 : `/api/search?${params.toString()}`;
             const response = await fetch(searchUrl, {
@@ -74,19 +70,6 @@
             const data = await response.json();
             this.resultsHtml = data.html;
             this.resultsCount = data.count;
-            this.hasSearched = true;
-            
-            // Update URL without page reload
-            const url = new URL(window.location);
-            if(this.searchQuery) url.searchParams.set('query', this.searchQuery);
-            else url.searchParams.delete('query');
-            if(this.districtId) url.searchParams.set('district_id', this.districtId);
-            else url.searchParams.delete('district_id');
-            if(this.subAreaId) url.searchParams.set('sub_area_id', this.subAreaId);
-            else url.searchParams.delete('sub_area_id');
-            if(this.categoryId) url.searchParams.set('category_id', this.categoryId);
-            else url.searchParams.delete('category_id');
-            window.history.replaceState({}, '', url);
         } catch (error) {
             console.error('Search error:', error);
         } finally {
@@ -328,16 +311,7 @@
                 </div>
 
                 <!-- Results Grid -->
-                <div class="grid grid-cols-1 gap-5">
-                    <!-- Initial results from server (shown when no AJAX search yet) -->
-                    <div x-show="!hasSearched" x-cloak>
-                        @include('businesses._results', ['businesses' => $businesses, 'categories' => $categories, 'districts' => $districts])
-                    </div>
-                    <!-- Dynamic results from AJAX (shown after first search) -->
-                    <template x-if="hasSearched">
-                        <div x-html="resultsHtml"></div>
-                    </template>
-                </div>
+                <div class="grid grid-cols-1 gap-5" x-html="resultsHtml"></div>
             </div>
         </div>
     </div>
